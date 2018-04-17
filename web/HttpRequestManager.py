@@ -11,10 +11,10 @@ Created on  : Tue Apr 17 22:20:56 2018
 import requests
 import json
 
-from HttpMethod import HttpMethod
-from HttpException import HttpException
-from HttpRequest import HttpRequest
-from HttpResponse import HttpResponse
+from .HttpMethod import HttpMethod
+from .HttpException import HttpException
+from .HttpRequest import HttpRequest
+from .HttpResponse import HttpResponse
 
 class HttpRequestManager:
     
