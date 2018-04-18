@@ -18,8 +18,28 @@ from .HttpResponse import HttpResponse
 
 class HttpRequestManager:
     
-    def __init__(self):
+    def __init__(self, logged=False):
+        self.__loggingAllowed = logged
         pass
+    
+    def __log(self, r):
+        if self.__loggingAllowed is True:
+            print('-' * 20)
+            print('URL:', r.request.url, '\n')
+            print('Request Headers:', r.request.headers, '\n')
+            print('Requst Method:', r.request.method, '\n')
+            if (r.request.method.upper() == 'POST'):
+                print('Request Payload:', r.request.body, '\n')
+            print('Response Headers:', r.headers, '\n')
+            print('Status Code:', r.status_code, '\n')
+            print('Response Payload:', r.text)
+            print('-' * 20)
+    
+    def __logErr(self, errStr):
+        if self.__loggingAllowed is True:
+            print('-' * 20)
+            print(errStr)
+            print('-' * 20)
     
     def invoke(self, request, method):
         try:
@@ -43,6 +63,8 @@ class HttpRequestManager:
                         headers=request.headers
                         )
             
+            self.__log(r)
+            
             # handle if any error occurred
             if r.status_code >= 400:
                 raise HttpException(r.message, r.status_code)
@@ -50,5 +72,21 @@ class HttpRequestManager:
             return HttpResponse(r.text)
         
         except HttpException as ex:
-            print('Error: %s (Code: %d)' % ex.message, ex.erorCode)
+            self.__logErr('Error: %s (Code: %d)' % ex.message, ex.erorCode)
             return HttpResponse(payload=ex.message, status=False)
+        
+        except requests.exceptions.ConnectionError as err:
+            self.__logErr('Error: %s' % err.args[0])
+            return HttpResponse(payload='Connection error', status=False)
+        
+        except requests.exceptions.Timeout as err:
+            self.__logErr('Error: %s' % str(err))
+            return HttpResponse(payload='Connection timed out', status=False)
+        
+        except requests.exceptions.TooManyRedirects as err:
+            self.__logErr('Error: %s' % str(err))
+            return HttpResponse(payload='Too many redirects', status=False)
+        
+        except requests.exceptions.RequestException as err:
+            self.__logErr('Error: %s' % str(err))
+            return HttpResponse(payload='Web request exception', status=False)
