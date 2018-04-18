@@ -9,12 +9,16 @@ Created on  : Tue Apr 17 22:20:56 2018
 # %%
 
 import requests
+from requests.auth import HTTPProxyAuth
 import json
 
 from .HttpMethod import HttpMethod
 from .HttpException import HttpException
 from .HttpRequest import HttpRequest
 from .HttpResponse import HttpResponse
+
+from .HttpProxy import HttpProxy
+from .HttpProxyCredentials import HttpProxyCredentials
 
 class HttpRequestManager:
     
@@ -43,24 +47,38 @@ class HttpRequestManager:
     
     def invoke(self, request, method):
         try:
-            
             if not isinstance(request, HttpRequest):
                 raise HttpException('Invalid HTTP request object.', 400)
             elif request.uri is None:
                 raise HttpException('Invalid HTTP request URI.', 400)
             
-            r = requests.Response()
+            # use proxies and credentials if provided
+            proxies = None
+            auth = None
+            if request.useProxy is True:
+                proxies = request.proxies
+                if request.credentials is not None:
+                    auth = HTTPProxyAuth(
+                            request.credentials.username,
+                            request.credentials.password
+                            )
+            
+            r = None
             if method == HttpMethod.GET:
                 r = requests.get(
                         url=request.uri,
                         params=request.queryParams,
-                        headers=request.headers
+                        headers=request.headers,
+                        proxies=proxies,
+                        auth=auth
                         )
             elif method == HttpMethod.POST:
                 r = requests.post(
                         url=request.uri,
                         data=json.dumps(request.payload),
-                        headers=request.headers
+                        headers=request.headers,
+                        proxies=proxies,
+                        auth=auth
                         )
             
             self.__log(r)
