@@ -28,17 +28,23 @@ class DatabaseManager(AbstractDBM):
     def closeDB(self):
         self.__dbm.closeDB()
     
-    def createTable(self, schema):
-        self.__dbm.createTable(schema)
+    def createTable(self, name, schema):
+        self.__dbm.createTable(name, schema)
     
     def deleteTable(self, name):
         self.__dbm.deleteTable(name)
     
+    def insertIntoTable(self, name, records):
+        self.__dbm.insertIntoTable(name, records)
+    
+    def fetchAllFromTable(self, name):
+        return self.__dbm.fetchAllFromTable(name)
+    
     def saveTable(self, name):
         self.__dbm.saveTable(name)
     
-    def executeQuery(self, query):
-        return self.__dbm.executeQuery(query)
+    def executeQuery(self, query, records=None):
+        return self.__dbm.executeQuery(query, records)
     
     def fetchOne(self):
         return self.__dbm.fetchOne()

@@ -22,7 +22,7 @@ class AbstractDBM(ABC):
         pass
     
     @abstractmethod
-    def createTable(self, schema):
+    def createTable(self, name, schema):
         pass
     
     @abstractmethod
@@ -30,11 +30,19 @@ class AbstractDBM(ABC):
         pass
     
     @abstractmethod
+    def insertIntoTable(self, name, records):
+        pass
+    
+    @abstractmethod
+    def fetchAllFromTable(self, name):
+        pass
+    
+    @abstractmethod
     def saveTable(self, name):
         pass
     
     @abstractmethod
-    def executeQuery(self, query):
+    def executeQuery(self, query, records=None):
         pass
     
     @abstractmethod
