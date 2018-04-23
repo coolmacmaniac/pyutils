@@ -11,9 +11,12 @@ Created on  : Thu Apr 19 22:42:09 2018
 import sqlite3
 from functools import reduce
 from .AbstractDBM import AbstractDBM
+from pyutils.io import PathManager
+from pyutils.io import FileManager
 
 class SqliteDBM(AbstractDBM):
     def __init__(self):
+        self.dbPath = None
         self.connection = None
         self.cursor = None
     
@@ -23,6 +26,7 @@ class SqliteDBM(AbstractDBM):
         try:
             self.connection = sqlite3.connect(dbpath)
             self.cursor = self.connection.cursor()
+            self.dbPath = dbpath
         except (sqlite3.DatabaseError, sqlite3.DataError,
                 sqlite3.IntegrityError, sqlite3.ProgrammingError,
                 sqlite3.InternalError, sqlite3.OperationalError) as e:
@@ -42,6 +46,24 @@ class SqliteDBM(AbstractDBM):
                 sqlite3.InternalError, sqlite3.OperationalError) as e:
             print(str(e))
             raise e
+    
+    def exportDB(self, tables=None):
+        dirName, _, _ = PathManager.pathComponents(self.dbPath)
+        if tables is None:
+            print('Fetching tables list from DB')
+            targetTables = self.listTables()
+        else:
+            targetTables = tables
+        exportedFiles = []
+        for table in targetTables:
+            csvPath = PathManager.absPath(dirName, table, 'csv')
+            records = self.fetchAllFromTable(table)
+            headers = [col[0] for col in self.cursor.description]
+            fm = FileManager()
+            print('Exporting table ->', table)
+            fm.writeCSV(csvPath, headers, records)
+            exportedFiles.append(csvPath)
+        return exportedFiles
     
     def createTable(self, name, schema):
         fields = reduce(lambda a, b: str(a) + ',\n' + str(b), schema)
@@ -91,7 +113,16 @@ class SqliteDBM(AbstractDBM):
             raise e
     
     def fetchOne(self):
+        # returns the record as a tuple
         return self.cursor.fetchone()
     
     def fetchAll(self):
+        # returns each record as a tuple
         return self.cursor.fetchall()
+    
+    def listTables(self):
+        query = 'select name from sqlite_master'
+        self.cursor.execute(query)
+        return [row[0] for row in self.cursor
+            if not row[0].startswith('sqlite')
+            and not row[0].endswith('idx')]

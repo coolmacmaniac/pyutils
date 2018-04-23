@@ -22,6 +22,10 @@ class AbstractDBM(ABC):
         pass
     
     @abstractmethod
+    def exportDB(self, tables=None):
+        pass
+    
+    @abstractmethod
     def createTable(self, name, schema):
         pass
     

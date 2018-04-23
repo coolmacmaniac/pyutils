@@ -28,6 +28,9 @@ class DatabaseManager(AbstractDBM):
     def closeDB(self):
         self.__dbm.closeDB()
     
+    def exportDB(self, tables=None):
+        return self.__dbm.exportDB(tables)
+    
     def createTable(self, name, schema):
         self.__dbm.createTable(name, schema)
     
@@ -51,3 +54,6 @@ class DatabaseManager(AbstractDBM):
     
     def fetchAll(self):
         return self.__dbm.fetchAll()
+    
+    def listTables(self):
+        return self.__dbm.listTables()
