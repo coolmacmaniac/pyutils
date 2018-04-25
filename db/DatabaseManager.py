@@ -31,6 +31,10 @@ class DatabaseManager(AbstractDBM):
     def exportDB(self, tables=None):
         return self.__dbm.exportDB(tables)
     
+    def importCSV(self, csvFiles):
+        return self.__dbm.importCSV(csvFiles)
+        pass
+    
     def createTable(self, name, schema):
         self.__dbm.createTable(name, schema)
     

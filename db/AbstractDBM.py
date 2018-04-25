@@ -26,6 +26,10 @@ class AbstractDBM(ABC):
         pass
     
     @abstractmethod
+    def importCSV(self, csvFiles):
+        pass
+    
+    @abstractmethod
     def createTable(self, name, schema):
         pass
     

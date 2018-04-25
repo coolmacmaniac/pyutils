@@ -8,8 +8,8 @@ Created on  : Thu Apr 19 00:21:25 2018
 
 # %%
 
-from os.path import exists
 import csv
+from .PathManager import PathManager
 
 class FileManager:
     
@@ -25,7 +25,7 @@ class FileManager:
     @staticmethod
     def read(filePath):
         contents = None
-        if exists(filePath):
+        if PathManager.exists(filePath):
             with open(filePath, 'r') as file:
                 contents = file.read()
         else:
@@ -35,7 +35,7 @@ class FileManager:
     @staticmethod
     def write(filePath, contents):
         proceed = True
-        if exists(filePath):
+        if PathManager.exists(filePath):
             consent = input('The file already exists, overwrite [yes]? ')
             if consent.lower() == 'yes':
                 proceed = True
@@ -49,25 +49,34 @@ class FileManager:
             print('The file contents were not written.')
     
     @staticmethod
-    def readCSV(filepath):
-        with open(filepath, mode='rt', newline='', encoding='utf-8') as f:
+    def readCSV(filePath):
+        if not PathManager.exists(filePath):
+            print('File not found at location:', filePath)
+            return None, None
+        with open(filePath, mode='rt', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, dialect='excel')
             try:
+                headers = next(reader)
+                records = []
                 for row in reader:
-                    print(row)
+                    records.append(row)
+                return headers, records
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(
-                        filepath, reader.line_num, e))
+                        filePath, reader.line_num, e))
                 raise e
     
     @staticmethod
-    def writeCSV(filepath, headers, rows):
-        with open(filepath, mode='wt', newline='', encoding='utf-8') as f:
+    def writeCSV(filePath, headers, rows):
+        if PathManager.exists(filePath):
+            print('File already exists at location: %s' % filePath)
+            print('Overwriting...')
+        with open(filePath, mode='wt', newline='', encoding='utf-8') as f:
             writer = csv.writer(f, dialect='excel')
             try:
                 writer.writerow(headers)
                 writer.writerows(rows)
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(
-                        filepath, writer.line_num, e))
+                        filePath, writer.line_num, e))
                 raise e

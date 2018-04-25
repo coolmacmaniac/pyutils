@@ -10,7 +10,7 @@ Created on  : Sat Apr 21 19:29:25 2018
 
 class Field:
     
-    def __init__(self, name, dtype, constraint=''):
+    def __init__(self, name, dtype, constraint=None):
         self.name = name
         self.dtype = dtype
         self.constraint = constraint

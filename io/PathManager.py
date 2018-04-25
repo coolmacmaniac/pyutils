@@ -11,6 +11,7 @@ Created on  : Tue Apr 24 01:23:44 2018
 
 import ntpath
 import os
+from pathlib2 import Path
 
 class PathManager:
     
@@ -29,9 +30,38 @@ class PathManager:
         return (folder, file, abspath)
     
     @staticmethod
+    def fileComponents(path):
+        file = ntpath.basename(path)
+        if file == '':
+            raise Exception('Invalid file location')
+        components = file.split(sep='.')
+        return (components[0], components[1])
+        
+    @staticmethod
     def absPath(dirPath, fileName, extension=None):
         if extension is not None:
             completeFileName = '%s.%s' % (fileName, extension)
         else:
             completeFileName = fileName
         return os.path.join(dirPath, completeFileName)
+    
+    @staticmethod
+    def exists(path):
+        if path is None:
+            return False
+        loc = Path(path)
+        return loc.exists()
+    
+    @staticmethod
+    def isFile(path):
+        if path is None:
+            return False
+        loc = Path(path)
+        return loc.is_file()
+    
+    @staticmethod
+    def isDir(path):
+        if path is None:
+            return False
+        loc = Path(path)
+        return loc.is_dir()

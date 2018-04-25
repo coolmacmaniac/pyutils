@@ -11,8 +11,11 @@ Created on  : Thu Apr 19 22:42:09 2018
 import sqlite3
 from functools import reduce
 from .AbstractDBM import AbstractDBM
+from .Field import Field
 from pyutils.io import PathManager
 from pyutils.io import FileManager
+
+# %%
 
 class SqliteDBM(AbstractDBM):
     def __init__(self):
@@ -65,9 +68,32 @@ class SqliteDBM(AbstractDBM):
             exportedFiles.append(csvPath)
         return exportedFiles
     
+    def importCSV(self, csvFiles):
+        if csvFiles is None:
+            print('Nothing to be imported')
+            return
+        tables = []
+        for csvFile in csvFiles:
+            print('Importing', csvFile, ':')
+            headers, records = FileManager.readCSV(csvFile)
+            if headers is None and records is None:
+                continue
+            schema = []
+            for header in headers:
+                schema.append(Field(header, 'TEXT'))
+            name, _ = PathManager.fileComponents(csvFile)
+            self.deleteTable(name)
+            self.createTable(name, schema)
+            self.insertIntoTable(name, records)
+            tables.append(name)
+            print('Table "%s" created in database file at location:\n%s' %
+                  (name, self.dbPath))
+            print()
+        return tables
+    
     def createTable(self, name, schema):
-        fields = reduce(lambda a, b: str(a) + ',\n' + str(b), schema)
-        query = 'create table ' + name + ' (\n' + fields + '\n)'
+        fields = reduce(lambda a, b: str(a) + ',\n  ' + str(b), schema)
+        query = 'create table ' + name + ' (\n  ' + fields + '\n)'
         self.executeQuery(query)
     
     def deleteTable(self, name):
