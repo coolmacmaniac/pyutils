@@ -33,14 +33,15 @@ class FileManager:
         return contents
     
     @staticmethod
-    def write(filePath, contents):
-        proceed = True
+    def write(filePath, contents, forced = False):
+        proceed = forced
         if PathManager.exists(filePath):
-            consent = input('The file already exists, overwrite [yes]? ')
-            if consent.lower() == 'yes':
-                proceed = True
-            else:
-                proceed = False
+            if forced is False:
+                consent = input('The file already exists, overwrite [yes]? ')
+                if consent.lower() == 'yes':
+                    proceed = True
+                else:
+                    proceed = False
         if proceed is True:
             with open(filePath, 'w') as file:
                 file.write(contents)
@@ -67,16 +68,24 @@ class FileManager:
                 raise e
     
     @staticmethod
-    def writeCSV(filePath, headers, rows):
+    def writeCSV(filePath, headers, rows, forced = False):
+        proceed = forced
         if PathManager.exists(filePath):
-            print('File already exists at location: %s' % filePath)
-            print('Overwriting...')
-        with open(filePath, mode='wt', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, dialect='excel')
-            try:
-                writer.writerow(headers)
-                writer.writerows(rows)
-            except csv.Error as e:
-                print('file {}, line {}: {}'.format(
-                        filePath, writer.line_num, e))
-                raise e
+            if forced is False:
+                consent = input('The file already exists, overwrite [yes]? ')
+                if consent.lower() == 'yes':
+                    proceed = True
+                else:
+                    proceed = False
+        if proceed is True:
+            with open(filePath, mode='wt', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f, dialect='excel')
+                try:
+                    writer.writerow(headers)
+                    writer.writerows(rows)
+                except csv.Error as e:
+                    print('file {}, line {}: {}'.format(
+                            filePath, writer.line_num, e))
+                    raise e
+        else:
+            print('The file contents were not written.')
