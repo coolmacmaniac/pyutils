@@ -29,6 +29,9 @@ class DateTime:
     
     # date parser to be used while reading CSV files
     dateparser_short = lambda ds: datetime.strptime(ds, DateTime.__fmt_short)
+    
+    # date formatter to be used while resetting indexes for plotting
+    dateformatter_short = lambda dt: dt.strftime(DateTime.__fmt_short)
 
     class Format(Enum):
         short = 1
@@ -178,6 +181,13 @@ class DateTime:
     def today(rev=False, dtf=Format.short) -> str:
         fmt = DateTime.__dt_format_specifier(rev, dtf)
         return datetime.today().strftime(fmt)
+    
+    @staticmethod
+    def today_extended(rev=False, dtf=Format.short) -> str:
+        fmt = DateTime.__dt_format_specifier(rev, dtf)
+        # add one more day for some specific cases to consider till today EOD
+        dt = datetime.today() + timedelta(days=1)
+        return dt.strftime(fmt)
 
     @staticmethod
     def one_week_ago_from_today(rev=False, dtf=Format.short) -> str:
